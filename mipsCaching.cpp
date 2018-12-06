@@ -11,6 +11,9 @@ using namespace std;
 
 #define RAM_SIZE 1024
 #define NUM_REGISTERS 32
+#define LINES_PER_BANK 32
+#define READ_ACCESS 0
+#define WRITE_ACCESS 1
 
 
 // Authors: Andrew Weathers and Nicholas Muenchen
@@ -106,8 +109,6 @@ void _and()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs] & registerArray[rt];
 	numAlu++;
-
-//Logically shifts register rt right by shift and stores the result in rd, fills with ones or zeroes depending on s
 }
 
 
@@ -604,6 +605,56 @@ void gatherInput()
 	cout << "  (all values are shown in hexadecimal)\r\n";
 	cout << "\r\n";
 	cout << "pc   result of instruction at that location\r\n";
+}
+
+
+
+
+unsigned int
+
+  plru_state[LINES_PER_BANK],  /* current state for each set    */
+
+  valid[4][LINES_PER_BANK],    /* valid bit for each line       */
+
+  tag[4][LINES_PER_BANK],      /* tag bits for each line        */
+
+                               /* line contents are not tracked */
+
+  plru_bank[8] /* table for bank replacement choice based on state */
+
+                 = { 0, 0, 1, 1, 2, 3, 2, 3 },
+
+  next_state[32] /* table for next state based on state and bank ref */
+                 /* index by 5-bit (4*state)+bank [=(state<<2)|bank] */
+
+                                    /*  bank ref  */
+                                    /* 0  1  2  3 */
+
+                 /*         0 */  = {  6, 4, 1, 0,
+                 /*         1 */       7, 5, 1, 0,
+                 /*         2 */       6, 4, 3, 2,
+                 /* current 3 */       7, 5, 3, 2,
+                 /*  state  4 */       6, 4, 1, 0,
+                 /*         5 */       7, 5, 1, 0,
+                 /*         6 */       6, 4, 3, 2,
+                 /*         7 */       7, 5, 3, 2  };
+
+void cache_init(void)
+{
+  int i;
+  for(i = 0; i < LINES_PER_BANK; i++)
+	{
+    plru_state[i] = 0;
+    valid[0][i] = tag[0][i] = 0;
+    valid[1][i] = tag[1][i] = 0;
+    valid[2][i] = tag[2][i] = 0;
+    valid[3][i] = tag[3][i] = 0;
+  }
+}
+
+void cacheAccess(unsigned int addr, int accessType)
+{
+	
 }
 
 int main()
