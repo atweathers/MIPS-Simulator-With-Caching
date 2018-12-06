@@ -343,7 +343,6 @@ void _xor()
 	numAlu++;
 }
 
-
 //Exclusive or's registerArray[rs] with sign_ext and stores the result in registerArray[rt]
 void xori()
 {
@@ -351,9 +350,6 @@ void xori()
 	registerArray[rt] = registerArray[rs] ^ sign_ext;
 	numAlu++;
 }
-
-
-
 
 //Fetches the next instruction.
 void fetch()
@@ -691,5 +687,4 @@ int main()
   return 0;
 }
 
-//000000 00001 00010 00011 00000 100011
-//000000 00001 00010 00011 00000 10011
+
