@@ -273,8 +273,6 @@ void mul()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs]*registerArray[rt];
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": mul   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 //nor's register rs and rt and places the result into rd
@@ -283,8 +281,6 @@ void nor()
 	checkRegZero(rd);
 	registerArray[rd] = ~(registerArray[rs] | registerArray[rt]);
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": nor   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 //or's register rs and register rt and places the result into rd
@@ -293,8 +289,6 @@ void _or()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs] | registerArray[rt];
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": or    - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 //Shifts register rt left logically by shift and stores the result in rd
@@ -310,8 +304,6 @@ void sll()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rt] << shift;
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": sll   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 //If register rs < sign_ext, then set register rt to 1 else set to 0
@@ -327,8 +319,6 @@ void slti()
 		registerArray[rd] = 0;
 	}
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": slti  - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 
@@ -345,8 +335,6 @@ void sra()
 		registerArray[rd] = registerArray[rd] | (((1 << (shift + 1)) - 1) << (31 - shift));
 	}
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": sra   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
-
 }
 
 
@@ -359,9 +347,6 @@ void srl()
 	checkRegZero(rd);
 	registerArray[rd] = (unsigned int )(registerArray[rt]) >> shift;
 	numAlu++;
-
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": srl   - register r[" << rd << "]";
-	cout << " now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 }
 
 //Subtract register rt from register rs and save the result into rd
@@ -370,9 +355,6 @@ void subu()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs]  - registerArray[rt];
 	numAlu++;
-
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": subu  - register r[" << rd << "]";
-	cout << " now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 }
 
 //Stores the word in r[t] at registerArray[registerArray[rs] + sign_imm
@@ -380,9 +362,6 @@ void sw()
 {
 	ram[registerArray[rs] + sign_ext] = registerArray[rt];
 	numStores++;
-
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": sw    - register r[" << rt << "]";
-	cout << " value stored in memory" << "\r\n";
 }
 
 //Exclusive or's registerArray[rs] and registerArray[rt] then stores the result in registerArray[rd]
@@ -391,9 +370,6 @@ void _xor()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs] ^ registerArray[rt];
 	numAlu++;
-
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": xor   - register r[" << rd << "]";
-	cout << " now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 }
 
 
@@ -403,9 +379,6 @@ void xori()
 	checkRegZero(rt);
 	registerArray[rt] = registerArray[rs] ^ sign_ext;
 	numAlu++;
-
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": xori  - register r[" << rt << "]";
-	cout << " now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rt] << "\r\n";
 }
 
 
