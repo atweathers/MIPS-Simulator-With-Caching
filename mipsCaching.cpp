@@ -5,6 +5,8 @@
 #include <string>
 #include <iomanip>
 #include <climits>
+#include <stdlib.h>
+#include <stdio.h>
 using namespace std;
 
 #define RAM_SIZE 1024
@@ -667,7 +669,7 @@ int main()
 	gatherInput();
 	void (* inst)();
 
-  while(halt == 0)
+    while(halt == 0)
 	{
 		fetch();
 		inst = decode();
@@ -680,6 +682,67 @@ int main()
 		}
 	}
 	writeOutput();
+
+	/************************** Caching - Project 3 **************************/
+	unsigned int
+    address,     /* incoming memory address */
+    addr_tag,    /* tag bits of address     */
+    addr_index,  /* index bits of address   */
+    bank,        /* bank that hit, or bank chosen for replacement */
+    hits,        /* counter */
+    misses;      /* counter */
+
+  cache_init();
+
+  hits = misses = 0;
+
+  while(scanf("%x",&address)!=EOF){
+
+    addr_index = (address >> 5) & 0x1f;
+    addr_tag = address >> 10;
+
+    /* check bank 0 hit */
+
+    if(valid[0][addr_index] && (addr_tag==tag[0][addr_index])){
+      hits++;
+      bank = 0;
+
+    /* check bank 1 hit */
+
+    }else if(valid[1][addr_index] && (addr_tag==tag[1][addr_index])){
+      hits++;
+      bank = 1;
+
+    /* check bank 2 hit */
+
+    }else if(valid[2][addr_index] && (addr_tag==tag[2][addr_index])){
+      hits++;
+      bank = 2;
+
+    /* check bank 3 hit */
+
+    }else if(valid[3][addr_index] && (addr_tag==tag[3][addr_index])){
+      hits++;
+      bank = 3;
+
+    /* miss - choose replacement bank */
+
+    }else{
+      misses++;
+
+           if(!valid[0][addr_index]) bank = 0;
+      else if(!valid[1][addr_index]) bank = 1;
+      else if(!valid[2][addr_index]) bank = 2;
+      else if(!valid[3][addr_index]) bank = 3;
+      else bank = plru_bank[ plru_state[addr_index] ];
+
+      valid[bank][addr_index] = 1;
+      tag[bank][addr_index] = addr_tag;
+    }
+
+    /* update replacement state for this set (i.e., index value) */
+
+    plru_state[addr_index] = next_state[ (plru_state[addr_index]<<2) | bank ];
 
   return 0;
 }

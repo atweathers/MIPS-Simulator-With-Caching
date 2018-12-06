@@ -176,3 +176,5 @@ int main(void){
 
   return 0;
 }
+
+// All functions used for caching in conjunction with Project 3 are below
