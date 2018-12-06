@@ -90,9 +90,6 @@ void addu()
 	checkRegZero(rd);
   registerArray[rd] = registerArray[rs] + registerArray[rt];
   numAlu++;
-  cout << setw(3) << setfill('0') << hex << (pc - 1) << ": addu  - register r[";
-	cout << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0');
-	cout << registerArray[rd] << "\r\n";
 }
 
 //Adds the number in rs to the immediately given value, then stores in rt
@@ -101,9 +98,6 @@ void addiu()
 	checkRegZero(rt);
   registerArray[rt] = registerArray[rs] + sign_ext;
   numAlu++;
-   cout << setw(3) << setfill('0') << hex << (pc - 1) << ": addiu - register r[";
-	 cout << rt << "] now contains " << "0x" << hex << setw(8) << setfill('0');
-	 cout << registerArray[rt] << "\r\n";
 }
 
 //Performs bitwise AND operation rs*rt, then stores in rd
@@ -112,8 +106,6 @@ void _and()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs] & registerArray[rt];
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": and   - register r[";
-	cout << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 
 //Logically shifts register rt right by shift and stores the result in rd, fills with ones or zeroes depending on s
 }
@@ -128,12 +120,10 @@ void beq()
 		pc += sign_ext;
 		pc = pc & 0xffff;
 		numTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (print_pc - 1) << ": beq   - branch taken to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 	}
 	else
 	{
 		numUnTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (pc - 1) << ": beq   - branch untaken" << "\r\n";
 	}
 
 
@@ -148,12 +138,10 @@ void bgtz()
 		pc += sign_ext;
 		pc = pc & 0xffff;
 		numTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (print_pc - 1) << ": bgtz  - branch taken to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 	}
 	else
 	{
 		numUnTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (pc - 1) << ": bgtz  - branch untaken" << "\r\n";
 	}
 }
 
@@ -166,13 +154,10 @@ void blez()
 		pc += sign_ext;
 		pc = pc & 0xffff;
 		numTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (print_pc - 1) << ": blez  - branch taken to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
-
 	}
 	else
 	{
 		numUnTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (pc - 1) << ": blez  - branch untaken" << "\r\n";
 	}
 }
 
@@ -185,13 +170,11 @@ void bne()
 		pc += sign_ext;
 		numTakenBranches++;
 		pc = pc & 0xffff;
-		cout << setw(3) << setfill('0') << hex << (print_pc - 1) << ": bne   - branch taken to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 
 	}
 	else
 	{
 		numUnTakenBranches++;
-		cout << setw(3) << setfill('0') << hex << (pc - 1) << ": bne  - branch untaken" << "\r\n";
 	}
 }
 
@@ -200,7 +183,6 @@ void hlt()
 {
 	halt = 1;
 	numInstFetch--;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": hlt" << "\r\n";
   return;
 }
 
@@ -210,7 +192,6 @@ void j()
 	int print_pc = pc;
 	pc = sign_ext;
 	numJumps++;
-	cout << setw(3) << setfill('0') << hex << (print_pc - 1) << ": j     - jump to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 }
 
 //Jump and link jumps, but also stores pc
@@ -220,7 +201,6 @@ void jal()
 	registerArray[31] = pc;
 	pc = sign_ext;
 	numJumpsAndLinks++;
-	cout << setw(3) << setfill('0') << hex << registerArray[31] - 1 << ": jal   - jump to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 }
 
 //Store incremented pc in rd and jump to rs.
@@ -230,7 +210,6 @@ void jalr()
 	registerArray[rd] = pc;
 	pc = registerArray[rs];
 	numJumpsAndLinks++;
-	cout << setw(3) << setfill('0') << hex << registerArray[rd] - 1 << ": jalr  - jump to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 
 
 }
@@ -242,7 +221,6 @@ void jr()
 	int print_pc = pc - 1;
 	pc = registerArray[rs];
 	numJumps++;
-	cout << setw(3) << setfill('0') << hex << print_pc << ": jr    - jump to " << "0x" << hex << setw(8) << setfill('0') << pc << "\r\n";
 
 }
 
@@ -253,7 +231,6 @@ void lui()
 	checkRegZero(rt);
 	registerArray[rt] = sign_ext << 16;
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": lui   - register r[" << rt << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rt] << "\r\n";
 
 }
 
@@ -263,7 +240,6 @@ void lw()
 	checkRegZero(rt);
 	registerArray[rt] = ram[rs+sign_ext];
 	numLoads++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": lw    - register r[" << rt << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rt] << "\r\n";
 
 }
 
@@ -273,7 +249,6 @@ void mul()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs]*registerArray[rt];
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": mul   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 
 }
 
@@ -283,7 +258,6 @@ void nor()
 	checkRegZero(rd);
 	registerArray[rd] = ~(registerArray[rs] | registerArray[rt]);
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": nor   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 
 }
 
@@ -293,7 +267,6 @@ void _or()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rs] | registerArray[rt];
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": or    - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 
 }
 
@@ -310,7 +283,6 @@ void sll()
 	checkRegZero(rd);
 	registerArray[rd] = registerArray[rt] << shift;
 	numAlu++;
-	cout << setw(3) << setfill('0') << hex << (pc - 1) << ": sll   - register r[" << rd << "] now contains " << "0x" << hex << setw(8) << setfill('0') << registerArray[rd] << "\r\n";
 
 }
 
