@@ -12,9 +12,9 @@ using namespace std;
 
 
 // Authors: Andrew Weathers and Nicholas Muenchen
-// Date: 21 September 2018
+// Date: 7 December 2018
 // Purpose: Simulate a simplified MIPS-like
-//			instruction set
+//			instruction set with caching capabilities
 
 //opcode: 6 bits
 //rs: 5 bits
@@ -43,7 +43,7 @@ unsigned int mar,
 			 registerArray[NUM_REGISTERS],
 			 ram[RAM_SIZE];
 
-int 	 sign_ext,
+int 	 	 sign_ext,
 			 ram_end = 0;
 
 bool   zeroAttempt=false;
