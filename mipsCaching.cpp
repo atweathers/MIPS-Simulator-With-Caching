@@ -644,6 +644,7 @@ void cache_init(void)
   for(i = 0; i < LINES_PER_BANK; i++)
 	{
     plru_state[i] = 0;
+		
     valid[0][i] = 0;
 		tag[0][i] = 0;
 		dirtyBit[0][i] = NOT_DIRTY;
@@ -664,36 +665,45 @@ void cache_init(void)
 
 void cacheAccess(unsigned int addr, int accessType)
 {
-	addr_index = (address >> 5) & 0x1f;
+	  addr_index = (address >> 5) & 0x1f;
     addr_tag = address >> 10;
 
     /* check bank 0 hit */
 
-    if(valid[0][addr_index] && (addr_tag==tag[0][addr_index])){
+    if(valid[0][addr_index] && (addr_tag==tag[0][addr_index]))
+		{
       hits++;
       bank = 0;
 
     /* check bank 1 hit */
 
-    }else if(valid[1][addr_index] && (addr_tag==tag[1][addr_index])){
+    }
+		else if(valid[1][addr_index] && (addr_tag==tag[1][addr_index]))
+		{
       hits++;
       bank = 1;
 
     /* check bank 2 hit */
 
-    }else if(valid[2][addr_index] && (addr_tag==tag[2][addr_index])){
+    }
+		else if(valid[2][addr_index] && (addr_tag==tag[2][addr_index]))
+		{
       hits++;
       bank = 2;
 
     /* check bank 3 hit */
 
-    }else if(valid[3][addr_index] && (addr_tag==tag[3][addr_index])){
+    }
+		else if(valid[3][addr_index] && (addr_tag==tag[3][addr_index]))
+		{
       hits++;
       bank = 3;
 
     /* miss - choose replacement bank */
 
-    }else{
+    }
+		else
+		{
       misses++;
 
            if(!valid[0][addr_index]) bank = 0;
