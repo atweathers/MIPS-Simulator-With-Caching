@@ -164,8 +164,6 @@ void beq()
 	{
 		numUnTakenBranches++;
 	}
-
-
 }
 
 //Branch if r[rs] > 0 to the pc + signed immediate.
@@ -621,9 +619,6 @@ void writeOutput()
 	cout << "  taken branches     " << setfill(' ') << setw(2) << numTakenBranches << "\r\n";
 	cout << "  untaken branches   " << setfill(' ') << setw(2) << numUnTakenBranches << "\r\n";
 	cout << "total                " << setfill(' ') << setw(2) << numJumpsAndBranches << "\r\n";
-
-
-
 }
 
 
@@ -644,7 +639,6 @@ void gatherInput()
 	cout << "\r\n";
 	cout << "pc   result of instruction at that location\r\n";
 }
-
 
 void cache_init(void)
 {
@@ -741,6 +735,13 @@ void cacheAccess(unsigned int address, int accessType)
 		{
 			dirtyBit[bank][addr_index] = DIRTY;
 		}
+}
+
+void print_cache_stats(){
+	cout << "data cache counts\r\n";
+	cout << "  hits       " << setw(13) << setfill(' ') << hits << "\r\n";
+	cout << "  misses     " << setw(13) << setfill(' ') << misses << "\r\n";
+	cout << "  write backs" << setw(13) << setfill(' ') << writeBackCount << "\r\n";
 }
 
 int main()
