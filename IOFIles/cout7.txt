@@ -1,0 +1,57 @@
+contents of memory
+addr value
+000: 240a0040
+001: 00210826
+002: 00421026
+003: 00013180
+004: 00c23021
+005: 24c63000
+006: acc00000
+007: 24420001
+008: 144afffa
+009: 24210001
+00a: 142afff7
+00b: 00000000
+
+behavioral simulation of simple MIPS-like machine
+  (all values are shown in hexadecimal)
+
+
+contents of memory
+addr value
+000: 240a0040
+001: 00210826
+002: 00421026
+003: 00013180
+004: 00c23021
+005: 24c63000
+006: acc00000
+007: 24420001
+008: 144afffa
+009: 24210001
+00a: 142afff7
+00b: 00000000
+
+instruction class counts (omits hlt instruction)
+  alu ops            16514
+  loads/stores        4096
+  jumps/branches      4160
+total                24770
+
+memory access counts (omits hlt instruction)
+  inst. fetches      24770
+  loads                  0
+  stores              4096
+total                28866
+
+transfer of control counts
+  jumps                  0
+  jump-and-links         0
+  taken branches      4095
+  untaken branches      65
+total                 4160
+
+data cache counts
+  hits                3584
+  misses               512
+  write backs          384
