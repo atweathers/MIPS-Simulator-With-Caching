@@ -269,8 +269,10 @@ void lui()
 //Load value in rt from memory + any sign_ext which may apply
 void lw()
 {
+	unsigned int addr = registerArray[rs] + sign_ext;
 	checkRegZero(rt);
-	registerArray[rt] = ram[rs+sign_ext];
+	cacheAccess(addr, READ_ACCESS);
+	registerArray[rt] = ram[registerArray[rs]+sign_ext];
 	numLoads++;
 }
 
@@ -367,6 +369,8 @@ void subu()
 //Stores the word in r[t] at registerArray[registerArray[rs] + sign_imm
 void sw()
 {
+	unsigned int addr = registerArray[rs] + sign_ext;
+	cacheAccess(addr, WRITE_ACCESS);
 	ram[registerArray[rs] + sign_ext] = registerArray[rt];
 	numStores++;
 }
@@ -708,20 +712,28 @@ void cacheAccess(unsigned int address, int accessType)
 		{
       misses++;
 
-           if(!valid[0][addr_index]) bank = 0;
+      if(!valid[0][addr_index]) bank = 0;
       else if(!valid[1][addr_index]) bank = 1;
       else if(!valid[2][addr_index]) bank = 2;
       else if(!valid[3][addr_index]) bank = 3;
-      else bank = plru_bank[ plru_state[addr_index] ];
+      else
+			{
+				bank = plru_bank[ plru_state[addr_index] ];
+				writeBackCount++;
+			}
 
       valid[bank][addr_index] = 1;
       tag[bank][addr_index] = addr_tag;
 			dirtyBit[band][addr_index] = NOT_DIRTY;
-			writeBackCount++;
     }
 		/* update replacement state for this set (i.e., index value) */
 
 		plru_state[addr_index] = next_state[ (plru_state[addr_index]<<2) | bank ];
+
+		if(accessType == WRITE_ACCESS)
+		{
+			dirtyBit[bank][addr_index] = DIRTY;
+		}
 }
 
 void print_cache_stats(){
