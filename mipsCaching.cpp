@@ -346,7 +346,6 @@ void _xor()
 	numAlu++;
 }
 
-
 //Exclusive or's registerArray[rs] with sign_ext and stores the result in registerArray[rt]
 void xori()
 {
@@ -354,9 +353,6 @@ void xori()
 	registerArray[rt] = registerArray[rs] ^ sign_ext;
 	numAlu++;
 }
-
-
-
 
 //Fetches the next instruction.
 void fetch()
@@ -668,46 +664,7 @@ void cache_init(void)
 
 void cacheAccess(unsigned int addr, int accessType)
 {
-
-}
-
-int main()
-{
-	initiliazeRam();
-	fillMap();
-	gatherInput();
-	void (* inst)();
-
-    while(halt == 0)
-	{
-		fetch();
-		inst = decode();
-		(*inst)();
-		if(zeroAttempt)
-		{
-			zeroAttempt = false;
-			cout << "***** - register r[0] not allowed to change; reset to 0\r\n";
-			registerArray[0] = 0;
-		}
-	}
-	writeOutput();
-
-	/************************** Caching - Project 3 **************************/
-	unsigned int
-    address,     /* incoming memory address */
-    addr_tag,    /* tag bits of address     */
-    addr_index,  /* index bits of address   */
-    bank,        /* bank that hit, or bank chosen for replacement */
-    hits,        /* counter */
-    misses;      /* counter */
-
-  cache_init();
-
-  hits = misses = 0;
-
-  while(scanf("%x",&address)!=EOF){
-
-    addr_index = (address >> 5) & 0x1f;
+	addr_index = (address >> 5) & 0x1f;
     addr_tag = address >> 10;
 
     /* check bank 0 hit */
@@ -747,7 +704,47 @@ int main()
 
       valid[bank][addr_index] = 1;
       tag[bank][addr_index] = addr_tag;
-    }
+		}
+}
+
+int main()
+{
+	initiliazeRam();
+	fillMap();
+	gatherInput();
+	void (* inst)();
+
+    while(halt == 0)
+	{
+		fetch();
+		inst = decode();
+		(*inst)();
+		if(zeroAttempt)
+		{
+			zeroAttempt = false;
+			cout << "***** - register r[0] not allowed to change; reset to 0\r\n";
+			registerArray[0] = 0;
+		}
+	}
+	writeOutput();
+
+	/************************** Caching - Project 3 **************************/
+	unsigned int
+    address,     /* incoming memory address */
+    addr_tag,    /* tag bits of address     */
+    addr_index,  /* index bits of address   */
+    bank,        /* bank that hit, or bank chosen for replacement */
+    hits,        /* counter */
+    misses;      /* counter */
+
+  cache_init();
+
+  hits = misses = 0;
+
+  while(scanf("%x",&address)!=EOF){
+
+
+   }
 
     /* update replacement state for this set (i.e., index value) */
 
@@ -755,6 +752,3 @@ int main()
 
   return 0;
 }
-
-//000000 00001 00010 00011 00000 100011
-//000000 00001 00010 00011 00000 10011
