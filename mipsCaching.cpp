@@ -50,6 +50,14 @@ unsigned int mar,
 			 registerArray[NUM_REGISTERS],
 			 ram[RAM_SIZE];
 
+unsigned int
+    		 address,     /* incoming memory address */
+    		 addr_tag,    /* tag bits of address     */
+    		 addr_index,  /* index bits of address   */
+    		 bank,        /* bank that hit, or bank chosen for replacement */
+    		 hits,        /* counter */
+    		 misses;      /* counter */
+
 int 	 	 sign_ext,
 			 ram_end = 0;
 
@@ -644,12 +652,12 @@ void cache_init(void)
   for(i = 0; i < LINES_PER_BANK; i++)
 	{
     plru_state[i] = 0;
-		
+
     valid[0][i] = 0;
 		tag[0][i] = 0;
 		dirtyBit[0][i] = NOT_DIRTY;
 
-    valid[1][i] = 0;
+    	valid[1][i] = 0;
 		tag[1][i] = 0;
 		dirtyBit[1][i] = NOT_DIRTY;
 
@@ -714,7 +722,7 @@ void cacheAccess(unsigned int addr, int accessType)
 
       valid[bank][addr_index] = 1;
       tag[bank][addr_index] = addr_tag;
-		}
+    }
 }
 
 int main()
@@ -739,13 +747,6 @@ int main()
 	writeOutput();
 
 	/************************** Caching - Project 3 **************************/
-	unsigned int
-    address,     /* incoming memory address */
-    addr_tag,    /* tag bits of address     */
-    addr_index,  /* index bits of address   */
-    bank,        /* bank that hit, or bank chosen for replacement */
-    hits,        /* counter */
-    misses;      /* counter */
 
   cache_init();
 
