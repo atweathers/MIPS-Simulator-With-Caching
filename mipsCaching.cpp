@@ -9,7 +9,7 @@
 #include <stdio.h>
 using namespace std;
 
-#define RAM_SIZE 1024
+#define RAM_SIZE 16384
 #define NUM_REGISTERS 32
 #define LINES_PER_BANK 32
 #define READ_ACCESS 0
@@ -47,16 +47,42 @@ unsigned int mar,
 			 numJumpsAndLinks = 0,
 			 numTakenBranches = 0,
 			 numUnTakenBranches = 0,
-			 registerArray[NUM_REGISTERS],
-			 ram[RAM_SIZE];
+			 registerArray[NUM_REGISTERS];
+
+unsigned int *	 ram;
 
 unsigned int
-    		 address,     /* incoming memory address */
-    		 addr_tag,    /* tag bits of address     */
-    		 addr_index,  /* index bits of address   */
-    		 bank,        /* bank that hit, or bank chosen for replacement */
-    		 hits,        /* counter */
-    		 misses;      /* counter */
+				 hits,        /* counter */
+				 misses,      /* counter */
+			   writeBackCount = 0, /* Counts number of write backs to memory */
+
+				 plru_state[LINES_PER_BANK],  /* current state for each set    */
+
+			   valid[4][LINES_PER_BANK],    /* valid bit for each line       */
+
+			   tag[4][LINES_PER_BANK],      /* tag bits for each line        */
+
+			                                /* line contents are not tracked */
+			 	dirtyBit[4][LINES_PER_BANK],  /* dirty bit for each line */
+
+			   plru_bank[8] /* table for bank replacement choice based on state */
+
+			                  = { 0, 0, 1, 1, 2, 3, 2, 3 },
+
+			   next_state[32] /* table for next state based on state and bank ref */
+			                  /* index by 5-bit (4*state)+bank [=(state<<2)|bank] */
+
+			                                     /*  bank ref  */
+			                                     /* 0  1  2  3 */
+
+			                  /*         0 */  = {  6, 4, 1, 0,
+			                  /*         1 */       7, 5, 1, 0,
+			                  /*         2 */       6, 4, 3, 2,
+			                  /* current 3 */       7, 5, 3, 2,
+			                  /*  state  4 */       6, 4, 1, 0,
+			                  /*         5 */       7, 5, 1, 0,
+			                  /*         6 */       6, 4, 3, 2,
+			                  /*         7 */       7, 5, 3, 2  };
 
 int 	 	 sign_ext,
 			 ram_end = 0;
@@ -67,6 +93,7 @@ map<unsigned int, string> opcodeMap;
 
 void initiliazeRam()
 {
+	ram = new unsigned int[RAM_SIZE];
 	for(int i = 0; i < RAM_SIZE; i++)
 	{
 		ram[i] = INT_MAX;
@@ -616,35 +643,6 @@ void gatherInput()
 
 
 
-unsigned int
-
-  plru_state[LINES_PER_BANK],  /* current state for each set    */
-
-  valid[4][LINES_PER_BANK],    /* valid bit for each line       */
-
-  tag[4][LINES_PER_BANK],      /* tag bits for each line        */
-
-                               /* line contents are not tracked */
-	dirtyBit[4][LINES_PER_BANK],  /* dirty bit for each line */
-
-  plru_bank[8] /* table for bank replacement choice based on state */
-
-                 = { 0, 0, 1, 1, 2, 3, 2, 3 },
-
-  next_state[32] /* table for next state based on state and bank ref */
-                 /* index by 5-bit (4*state)+bank [=(state<<2)|bank] */
-
-                                    /*  bank ref  */
-                                    /* 0  1  2  3 */
-
-                 /*         0 */  = {  6, 4, 1, 0,
-                 /*         1 */       7, 5, 1, 0,
-                 /*         2 */       6, 4, 3, 2,
-                 /* current 3 */       7, 5, 3, 2,
-                 /*  state  4 */       6, 4, 1, 0,
-                 /*         5 */       7, 5, 1, 0,
-                 /*         6 */       6, 4, 3, 2,
-                 /*         7 */       7, 5, 3, 2  };
 
 void cache_init(void)
 {
@@ -657,7 +655,7 @@ void cache_init(void)
 		tag[0][i] = 0;
 		dirtyBit[0][i] = NOT_DIRTY;
 
-    	valid[1][i] = 0;
+    valid[1][i] = 0;
 		tag[1][i] = 0;
 		dirtyBit[1][i] = NOT_DIRTY;
 
@@ -671,8 +669,13 @@ void cache_init(void)
   }
 }
 
-void cacheAccess(unsigned int addr, int accessType)
+void cacheAccess(unsigned int address, int accessType)
 {
+	unsigned int
+	    		 addr_tag,    /* tag bits of address     */
+	    		 addr_index,  /* index bits of address   */
+	    		 bank;        /* bank that hit, or bank chosen for replacement */
+
 	  addr_index = (address >> 5) & 0x1f;
     addr_tag = address >> 10;
 
@@ -722,17 +725,26 @@ void cacheAccess(unsigned int addr, int accessType)
 
       valid[bank][addr_index] = 1;
       tag[bank][addr_index] = addr_tag;
+			dirtyBit[band][addr_index] = NOT_DIRTY;
+			writeBackCount++;
     }
+		/* update replacement state for this set (i.e., index value) */
+
+		plru_state[addr_index] = next_state[ (plru_state[addr_index]<<2) | bank ];
 }
 
 int main()
 {
+	cache_init();
+	hits = 0;
+	misses = 0;
+
 	initiliazeRam();
 	fillMap();
 	gatherInput();
 	void (* inst)();
 
-    while(halt == 0)
+  while(halt == 0)
 	{
 		fetch();
 		inst = decode();
@@ -745,21 +757,6 @@ int main()
 		}
 	}
 	writeOutput();
-
-	/************************** Caching - Project 3 **************************/
-
-  cache_init();
-
-  hits = misses = 0;
-
-  while(scanf("%x",&address)!=EOF){
-
-
-   }
-
-    /* update replacement state for this set (i.e., index value) */
-
-    plru_state[addr_index] = next_state[ (plru_state[addr_index]<<2) | bank ];
 
   return 0;
 }
