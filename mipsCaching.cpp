@@ -14,6 +14,8 @@ using namespace std;
 #define LINES_PER_BANK 32
 #define READ_ACCESS 0
 #define WRITE_ACCESS 1
+#define NOT_DIRTY 0
+#define DIRTY 1
 
 
 // Authors: Andrew Weathers and Nicholas Muenchen
@@ -619,6 +621,7 @@ unsigned int
   tag[4][LINES_PER_BANK],      /* tag bits for each line        */
 
                                /* line contents are not tracked */
+	dirtyBit[4][LINES_PER_BANK],  /* dirty bit for each line */
 
   plru_bank[8] /* table for bank replacement choice based on state */
 
@@ -645,16 +648,27 @@ void cache_init(void)
   for(i = 0; i < LINES_PER_BANK; i++)
 	{
     plru_state[i] = 0;
-    valid[0][i] = tag[0][i] = 0;
-    valid[1][i] = tag[1][i] = 0;
-    valid[2][i] = tag[2][i] = 0;
-    valid[3][i] = tag[3][i] = 0;
+    valid[0][i] = 0;
+		tag[0][i] = 0;
+		dirtyBit[0][i] = NOT_DIRTY;
+
+    valid[1][i] = 0;
+		tag[1][i] = 0;
+		dirtyBit[1][i] = NOT_DIRTY;
+
+		valid[2][i] = 0;
+		tag[2][i] = 0;
+		dirtyBit[2][i] = NOT_DIRTY;
+
+		valid[3][i] = 0;
+		tag[3][i] = 0;
+		dirtyBit[3][i] = NOT_DIRTY;
   }
 }
 
 void cacheAccess(unsigned int addr, int accessType)
 {
-	
+
 }
 
 int main()
