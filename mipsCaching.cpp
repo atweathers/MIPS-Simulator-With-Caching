@@ -17,6 +17,7 @@ using namespace std;
 #define NOT_DIRTY 0
 #define DIRTY 1
 
+void cacheAccess(unsigned int , int);
 
 // Authors: Andrew Weathers and Nicholas Muenchen
 // Date: 7 December 2018
@@ -645,9 +646,6 @@ void gatherInput()
 }
 
 
-
-
-
 void cache_init(void)
 {
   int i;
@@ -733,7 +731,7 @@ void cacheAccess(unsigned int address, int accessType)
 
       valid[bank][addr_index] = 1;
       tag[bank][addr_index] = addr_tag;
-			dirtyBit[band][addr_index] = NOT_DIRTY;
+			dirtyBit[bank][addr_index] = NOT_DIRTY;
     }
 		/* update replacement state for this set (i.e., index value) */
 
