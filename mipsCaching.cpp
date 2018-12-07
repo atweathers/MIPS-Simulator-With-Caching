@@ -18,6 +18,7 @@ using namespace std;
 #define DIRTY 1
 
 void cacheAccess(unsigned int , int);
+void print_cache_stats();
 
 // Authors: Andrew Weathers and Nicholas Muenchen
 // Date: 7 December 2018
@@ -270,7 +271,7 @@ void lui()
 //Load value in rt from memory + any sign_ext which may apply
 void lw()
 {
-	unsigned int addr = registerArray[rs] + sign_ext;
+	unsigned int addr = (registerArray[rs] << 2) + sign_ext;
 	checkRegZero(rt);
 	cacheAccess(addr, READ_ACCESS);
 	registerArray[rt] = ram[registerArray[rs]+sign_ext];
@@ -370,7 +371,7 @@ void subu()
 //Stores the word in r[t] at registerArray[registerArray[rs] + sign_imm
 void sw()
 {
-	unsigned int addr = registerArray[rs] + sign_ext;
+	unsigned int addr = (registerArray[rs] << 2) + sign_ext;
 	cacheAccess(addr, WRITE_ACCESS);
 	ram[registerArray[rs] + sign_ext] = registerArray[rt];
 	numStores++;
@@ -581,7 +582,7 @@ void printMemory()
 {
 	cout << "contents of memory" << "\r\n";
 	cout << "addr value" << "\r\n";
-	for(int i = 0; i < RAM_SIZE; i++)
+	for(int i = 0; i < ram_end; i++)
 	{
 		if(ram[i] != INT_MAX)
 		{
@@ -593,8 +594,8 @@ void printMemory()
 
 void writeOutput()
 {
-	cout << "\r\n";
-	printMemory();
+	//cout << "\r\n";
+	//printMemory();
 	cout << dec;
 	int numJumpsAndBranches = numTakenBranches + numUnTakenBranches + numJumps + numJumpsAndLinks;
 	int numLoadsAndStores = numStores + numLoads;
@@ -602,23 +603,26 @@ void writeOutput()
 	int totalMemAccess = numLoadsAndStores + numInstFetch;
 	cout << "\r\n";
 	cout << "instruction class counts (omits hlt instruction)" << "\r\n";
-	cout << "  alu ops            " << setfill(' ') << setw(2) << numAlu << "\r\n";
-	cout << "  loads/stores       " << setfill(' ') << setw(2) << numLoadsAndStores << "\r\n";
-	cout << "  jumps/branches     " << setfill(' ') << setw(2) << numJumpsAndBranches << "\r\n";
-	cout << "total                " << setfill(' ') << setw(2) << totalInstClassCounts << "\r\n" << "\r\n";
+	cout << "  alu ops         " << setfill(' ') << setw(8) << numAlu << "\r\n";
+	cout << "  loads/stores    " << setfill(' ') << setw(8) << numLoadsAndStores << "\r\n";
+	cout << "  jumps/branches  " << setfill(' ') << setw(8) << numJumpsAndBranches << "\r\n";
+	cout << "total             " << setfill(' ') << setw(8) << totalInstClassCounts << "\r\n" << "\r\n";
 
 	cout << "memory access counts (omits hlt instruction)" << "\r\n";
-	cout << "  inst. fetches      " << setfill(' ') << setw(2) << numInstFetch << "\r\n";
-	cout << "  loads              " << setfill(' ') << setw(2) << numLoads << "\r\n";
-	cout << "  stores             " << setfill(' ') << setw(2) << numStores << "\r\n";
-	cout << "total                " << setfill(' ') << setw(2) << totalMemAccess << "\r\n" << "\r\n";
+	cout << "  inst. fetches   " << setfill(' ') << setw(8) << numInstFetch << "\r\n";
+	cout << "  loads           " << setfill(' ') << setw(8) << numLoads << "\r\n";
+	cout << "  stores          " << setfill(' ') << setw(8) << numStores << "\r\n";
+	cout << "total             " << setfill(' ') << setw(8) << totalMemAccess << "\r\n" << "\r\n";
 
 	cout << "transfer of control counts" << "\r\n";
-	cout << "  jumps              " << setfill(' ') << setw(2) << numJumps << "\r\n";
-	cout << "  jump-and-links     " << setfill(' ') << setw(2) << numJumpsAndLinks << "\r\n";
-	cout << "  taken branches     " << setfill(' ') << setw(2) << numTakenBranches << "\r\n";
-	cout << "  untaken branches   " << setfill(' ') << setw(2) << numUnTakenBranches << "\r\n";
-	cout << "total                " << setfill(' ') << setw(2) << numJumpsAndBranches << "\r\n";
+	cout << "  jumps           " << setfill(' ') << setw(8) << numJumps << "\r\n";
+	cout << "  jump-and-links  " << setfill(' ') << setw(8) << numJumpsAndLinks << "\r\n";
+	cout << "  taken branches  " << setfill(' ') << setw(8) << numTakenBranches << "\r\n";
+	cout << "  untaken branches" << setfill(' ') << setw(8) << numUnTakenBranches << "\r\n";
+	cout << "total             " << setfill(' ') << setw(8) << numJumpsAndBranches << "\r\n";
+
+	cout << "\r\n";
+	print_cache_stats();
 }
 
 
@@ -636,8 +640,8 @@ void gatherInput()
 	cout << "\r\n";
 	cout << "behavioral simulation of simple MIPS-like machine\r\n";
 	cout << "  (all values are shown in hexadecimal)\r\n";
-	cout << "\r\n";
-	cout << "pc   result of instruction at that location\r\n";
+	//cout << "\r\n";
+	//cout << "pc   result of instruction at that location\r\n";
 }
 
 void cache_init(void)
@@ -671,13 +675,12 @@ void cacheAccess(unsigned int address, int accessType)
 	    		 addr_tag,    /* tag bits of address     */
 	    		 addr_index,  /* index bits of address   */
 	    		 bank;        /* bank that hit, or bank chosen for replacement */
-
-	  addr_index = (address >> 5) & 0x1f;
+		addr_index = (address >> 5) & 0x1f;
     addr_tag = address >> 10;
 
     /* check bank 0 hit */
 
-    if(valid[0][addr_index] && (addr_tag==tag[0][addr_index]))
+    if(valid[0][addr_index]==1 && (addr_tag==tag[0][addr_index]))
 		{
       hits++;
       bank = 0;
@@ -685,7 +688,7 @@ void cacheAccess(unsigned int address, int accessType)
     /* check bank 1 hit */
 
     }
-		else if(valid[1][addr_index] && (addr_tag==tag[1][addr_index]))
+		else if(valid[1][addr_index]==1 && (addr_tag==tag[1][addr_index]))
 		{
       hits++;
       bank = 1;
@@ -693,7 +696,7 @@ void cacheAccess(unsigned int address, int accessType)
     /* check bank 2 hit */
 
     }
-		else if(valid[2][addr_index] && (addr_tag==tag[2][addr_index]))
+		else if(valid[2][addr_index]==1 && (addr_tag==tag[2][addr_index]))
 		{
       hits++;
       bank = 2;
@@ -701,7 +704,7 @@ void cacheAccess(unsigned int address, int accessType)
     /* check bank 3 hit */
 
     }
-		else if(valid[3][addr_index] && (addr_tag==tag[3][addr_index]))
+		else if(valid[3][addr_index]==1 && (addr_tag==tag[3][addr_index]))
 		{
       hits++;
       bank = 3;
@@ -720,7 +723,10 @@ void cacheAccess(unsigned int address, int accessType)
       else
 			{
 				bank = plru_bank[ plru_state[addr_index] ];
-				writeBackCount++;
+				if(dirtyBit[bank][addr_index] == DIRTY)
+				{
+					writeBackCount++;
+				}
 			}
 
       valid[bank][addr_index] = 1;
